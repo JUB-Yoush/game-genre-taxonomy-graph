@@ -1,5 +1,30 @@
 package main
 
-templ hello(name string) {
-	<div>Hello, { name }</div>
+templ GenreWidget(genre *Genre) {
+	<div>
+		<button class="external" type="button">{ genre.id }</button>
+		<div class="content"></div>
+	</div>
+}
+
+templ Main(genres map[string]*Genre) {
+	for _,genre := range genres {
+		@GenreWidget(genre)
+	}
+}
+
+templ BoilerPlate(genres map[string]*Genre) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+			<title>HTML 5 Boilerplate</title>
+			<link rel="stylesheet" href="static/style.css"/>
+		</head>
+		<body>
+			@Main(genres)
+		</body>
+	</html>
 }

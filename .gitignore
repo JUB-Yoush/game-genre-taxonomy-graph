@@ -8,6 +8,9 @@
 *.so
 *.dylib
 
+# templ generated files
+*_templ.go
+
 # Test binary, built with `go test -c`
 *.test
 
