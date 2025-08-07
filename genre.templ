@@ -1,9 +1,17 @@
 package main
 
+import "fmt"
+
+func balls() {
+	fmt.Println("balls")
+}
+
 templ GenreWidget(genre *Genre) {
 	<div>
-		<button class="external" type="button">{ genre.id }</button>
-		<div class="content"></div>
+		<button class="external" type="button" onclick="toggleVisibility(this)">{ genre.id }</button>
+		<div id="content" class="closed">
+			@genre.html
+		</div>
 	</div>
 }
 
@@ -13,7 +21,7 @@ templ Main(genres map[string]*Genre) {
 	}
 }
 
-templ BoilerPlate(genres map[string]*Genre) {
+templ BoilerPlate(genres map[string]*Genre, rootGenres []string) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -21,9 +29,10 @@ templ BoilerPlate(genres map[string]*Genre) {
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
 			<title>HTML 5 Boilerplate</title>
-			<link rel="stylesheet" href="static/style.css"/>
+			<link rel="stylesheet" href="style.css"/>
 		</head>
 		<body>
+			<script src="script.js"></script>
 			@Main(genres)
 		</body>
 	</html>

@@ -20,11 +20,16 @@ import (
 )
 
 type Genre struct {
-	id        string
-	name      string
-	parents   []string
-	children  []*Genre
-	mdContent bytes.Buffer
+	id       string
+	name     string
+	parents  []string
+	children []*Genre
+	rawMd    bytes.Buffer
+	html     templ.Component
+}
+
+func (g Genre) String() string {
+	return fmt.Sprint(g.id)
 }
 
 type Game struct {
@@ -40,8 +45,12 @@ func Unsafe(html string) templ.Component {
 	})
 }
 
-func makeGenreList() map[string]*Genre {
+func getRoots() {
+}
+
+func makeGenreList() (map[string]*Genre, []string) {
 	genreMap := map[string]*Genre{}
+	var rootGenres []string
 	markdown := goldmark.New(
 		goldmark.WithExtensions(
 			meta.Meta,
@@ -56,6 +65,7 @@ func makeGenreList() map[string]*Genre {
 
 	// create genre objects
 	for _, f := range files {
+		fmt.Println("-----")
 		fmt.Println(f.Name())
 		context := parser.NewContext()
 		byteArr, err := os.ReadFile(fmt.Sprintf("%s/%s", genreDataFolder, f.Name()))
@@ -77,20 +87,26 @@ func makeGenreList() map[string]*Genre {
 		name := metaData["name"]
 		genre := new(Genre)
 		genre.id = title.(string)
-		genre.mdContent = buf
+		genre.rawMd = buf
 		genre.name = name.(string)
 
+		genre.html = Unsafe(genre.rawMd.String())
+
 		if parents == nil {
+			fmt.Println("no parents")
+			rootGenres = append(rootGenres, genre.id)
 			genreMap[genre.id] = genre
 			continue
 		}
 
 		for _, v := range parents.([]any) {
 			s := v.(string)
+			fmt.Println(s)
 			genre.parents = append(genre.parents, s)
 		}
 
 		genreMap[genre.id] = genre
+
 	}
 
 	// make genre tree of parents and children
@@ -102,17 +118,45 @@ func makeGenreList() map[string]*Genre {
 			}
 		}
 	}
-	return genreMap
+	return genreMap, rootGenres
+}
+
+func makeGenreTree(genreMap map[string]*Genre, rootGenres []string) (res [][]*Genre) {
+	var queue []*Genre
+
+	for _, genre := range rootGenres {
+		queue = append(queue, genreMap[genre])
+	}
+	res = append(res, queue)
+
+	var row []*Genre
+	for len(queue) > 0 {
+		for _, curr := range queue {
+			row = append(row, curr.children...)
+		}
+		res = append(res, row)
+		queue = row
+		row = nil
+	}
+	return res
 }
 
 func main() {
-	genreMap := makeGenreList()
-	component := BoilerPlate(genreMap)
+	genreMap, rootGenres := makeGenreList()
+	genreTree := makeGenreTree(genreMap, rootGenres)
+	fmt.Println(genreTree)
+	component := BoilerPlate(genreMap, rootGenres)
 
 	rootPath := "public"
+	staticPath := "static"
 	os.RemoveAll(rootPath)
 	if err := os.Mkdir(rootPath, 0755); err != nil {
 		log.Fatalf("failed to create output directory: %v", err)
+	}
+
+	err := os.CopyFS(rootPath, os.DirFS(staticPath))
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// Create an index page.

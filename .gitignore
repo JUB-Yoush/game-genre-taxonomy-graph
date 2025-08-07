@@ -10,6 +10,7 @@
 
 # templ generated files
 *_templ.go
+/public
 
 # Test binary, built with `go test -c`
 *.test

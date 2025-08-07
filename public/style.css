@@ -1,0 +1,18 @@
+.external{
+  color:#00ff00
+}
+
+.closed{
+  display:none;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
+}
+body div{
+  display:flex
+  flex-direction:row;
+}
+body div div{}
+
