@@ -20,12 +20,13 @@ import (
 )
 
 type Genre struct {
-	id       string
-	name     string
-	parents  []string
-	children []*Genre
-	rawMd    bytes.Buffer
-	html     templ.Component
+	id         string
+	name       string
+	parents    []string
+	classNames string
+	children   []*Genre
+	rawMd      bytes.Buffer
+	html       templ.Component
 }
 
 func (g Genre) String() string {
@@ -43,9 +44,6 @@ func Unsafe(html string) templ.Component {
 		_, err = io.WriteString(w, html)
 		return
 	})
-}
-
-func getRoots() {
 }
 
 func makeGenreList() (map[string]*Genre, []string) {
@@ -89,8 +87,9 @@ func makeGenreList() (map[string]*Genre, []string) {
 		genre.id = title.(string)
 		genre.rawMd = buf
 		genre.name = name.(string)
-
 		genre.html = Unsafe(genre.rawMd.String())
+
+		genre.classNames = ""
 
 		if parents == nil {
 			fmt.Println("no parents")
@@ -101,10 +100,11 @@ func makeGenreList() (map[string]*Genre, []string) {
 
 		for _, v := range parents.([]any) {
 			s := v.(string)
-			fmt.Println(s)
 			genre.parents = append(genre.parents, s)
+			genre.classNames += fmt.Sprintf("%s ", s)
 		}
 
+		fmt.Println(genre.classNames)
 		genreMap[genre.id] = genre
 
 	}
@@ -123,6 +123,7 @@ func makeGenreList() (map[string]*Genre, []string) {
 
 func makeGenreTree(genreMap map[string]*Genre, rootGenres []string) (res [][]*Genre) {
 	var queue []*Genre
+	visited := map[*Genre]bool{}
 
 	for _, genre := range rootGenres {
 		queue = append(queue, genreMap[genre])
@@ -132,12 +133,18 @@ func makeGenreTree(genreMap map[string]*Genre, rootGenres []string) (res [][]*Ge
 	var row []*Genre
 	for len(queue) > 0 {
 		for _, curr := range queue {
+			_, in := visited[curr]
+			if in {
+				continue
+			}
+			visited[curr] = true
 			row = append(row, curr.children...)
 		}
 		res = append(res, row)
 		queue = row
 		row = nil
 	}
+	res = res[:len(res)-1]
 	return res
 }
 
@@ -145,7 +152,7 @@ func main() {
 	genreMap, rootGenres := makeGenreList()
 	genreTree := makeGenreTree(genreMap, rootGenres)
 	fmt.Println(genreTree)
-	component := BoilerPlate(genreMap, rootGenres)
+	component := BoilerPlate(genreMap, genreTree)
 
 	rootPath := "public"
 	staticPath := "static"

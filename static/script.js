@@ -1,10 +1,14 @@
 var toggleVisibility = function (elem) {
-  elem.nextElementSibling.classList.toggle("closed")
+  //elem.nextElementSibling.classList.toggle("closed");
 }
-let genreQueue = []
 
-// bfs style row by row rendering
-// render a button
-// add children to queue
-// render children, connect child to parent (if parent isn't toggeled connect to the button)
-// zooming in and out?
+let recalculateLines = () => {
+  let puzzle = document.getElementById("puzzle");
+  let sokoban = document.getElementById("sokoban");
+  let falling_block_puzzle = document.getElementById("falling_block_puzzle");
+  new LeaderLine(puzzle, sokoban, { color: 'red', size: 4 })
+  new LeaderLine(puzzle, falling_block_puzzle, { color: 'red', size: 4 })
+
+}
+
+recalculateLines()

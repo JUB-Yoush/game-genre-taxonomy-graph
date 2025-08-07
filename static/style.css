@@ -1,18 +1,37 @@
-.external{
-  color:#00ff00
+.genre_widget{
+  
+ margin:2em;
 }
 
 .closed{
   display:none;
 }
 
-body{
+.flex_master{
   display:flex;
   flex-direction:column;
+  width:1200px
 }
-body div{
-  display:flex
+
+.flex_row{
+  display:flex;
   flex-direction:row;
+  justify-content:space-evenly;
 }
-body div div{}
+
+.flex_row div{
+  color:#ff0000;
+  margin:2em;
+}
+
+body{
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+}
+
+.svg_container > svg{
+z-index: -1;
+}
+
 

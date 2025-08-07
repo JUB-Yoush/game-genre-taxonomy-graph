@@ -1,39 +1,48 @@
 package main
 
-import "fmt"
-
-func balls() {
-	fmt.Println("balls")
-}
-
 templ GenreWidget(genre *Genre) {
-	<div>
-		<button class="external" type="button" onclick="toggleVisibility(this)">{ genre.id }</button>
-		<div id="content" class="closed">
-			@genre.html
-		</div>
-	</div>
+<div class={ genre.classNames } id={ genre.id }>
+  <button class="external" type="button" onclick="toggleVisibility(this)">{ genre.id }</button>
+  <div id="content" class="closed">
+    @genre.html
+  </div>
+</div>
 }
 
-templ Main(genres map[string]*Genre) {
-	for _,genre := range genres {
-		@GenreWidget(genre)
-	}
+templ GenreRow(genres []*Genre) {
+<div class="flex_row">
+  for _,genre := range genres {
+  @GenreWidget(genre)
+  }
+</div>
 }
 
-templ BoilerPlate(genres map[string]*Genre, rootGenres []string) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="UTF-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-			<title>HTML 5 Boilerplate</title>
-			<link rel="stylesheet" href="style.css"/>
-		</head>
-		<body>
-			<script src="script.js"></script>
-			@Main(genres)
-		</body>
-	</html>
+templ Main(genres [][]*Genre) {
+<div class="flex_master">
+  for _,genreRow := range genres {
+  @GenreRow(genreRow)
+  }
+</div>
+}
+
+templ BoilerPlate(genres map[string]*Genre, genreTree [][]*Genre) {
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>HTML 5 Boilerplate</title>
+  <link rel="stylesheet" href="style.css" />:
+</head>
+
+<body>
+  @Main(genreTree)
+  <div>infopanel</div>
+  <script src="leader-line.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
 }
